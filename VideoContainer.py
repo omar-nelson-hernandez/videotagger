@@ -3,6 +3,7 @@ import numpy as np
 import wx
 from VideoInformationPanel import VideoInformationPanel
 import wx.lib.agw.buttonpanel as bp
+from TaggingPanel import TaggingPanel
 
 class VideoContainer( wx.Panel ):
 
@@ -21,6 +22,7 @@ class VideoContainer( wx.Panel ):
         self.trackbar = wx.Slider( self )
         self.sizer_h = wx.BoxSizer( wx.HORIZONTAL )
         self.vip = VideoInformationPanel( self )
+        self.tp = TaggingPanel( self )
 
         # Button bar
         self.mediaControls = bp.ButtonPanel( self, wx.ID_ANY )
@@ -54,8 +56,10 @@ class VideoContainer( wx.Panel ):
         self.sizer_v.Add( self.videoDrawingPanel, 1, wx.EXPAND )
         self.sizer_v.Add( self.mediaControls, 0, wx.EXPAND )
         self.sizer_v.Add( self.trackbar, 0, wx.EXPAND )
+
         self.sizer_h.Add( self.sizer_v, 1, wx.EXPAND )
         self.sizer_h.Add( self.vip, 1, wx.EXPAND )
+        self.sizer_h.Add( self.tp, 1, wx.EXPAND )
 
         self.mediaControls.DoLayout()
 
@@ -73,10 +77,12 @@ class VideoContainer( wx.Panel ):
         self.videoPause()
 
     def onForward( self, evt ):
-        self.updateFrame( self.videoSource.frameNumber + 1 )
+        if self.videoSource.frameNumber < self.videoSource.frames:
+            self.updateFrame( self.videoSource.frameNumber + 1 )
 
     def onBackward( self, evt ):
-        self.updateFrame( self.videoSource.frameNumber - 1 )
+        if self.videoSource.frameNumber > 0:
+            self.updateFrame( self.videoSource.frameNumber - 1 )
 
     def onResizeVideoPanel( self, evt ):
         if self.videoSource:
@@ -158,3 +164,6 @@ class VideoContainer( wx.Panel ):
 
         # Configure VideoInformationPanel from VideoSource
         self.vip.updateInformation( videoSource )
+
+        # Pass the video source to the tagging panel in order to fetch information from it
+        self.tp.setVideoSource( videoSource )
