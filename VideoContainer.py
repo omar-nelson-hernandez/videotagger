@@ -4,6 +4,7 @@ import wx
 from VideoInformationPanel import VideoInformationPanel
 import wx.lib.agw.buttonpanel as bp
 from TaggingPanel import TaggingPanel
+from VideoSource import VideoSource
 
 class VideoContainer( wx.Panel ):
 
@@ -26,6 +27,8 @@ class VideoContainer( wx.Panel ):
 
         # Button bar
         self.mediaControls = bp.ButtonPanel( self, wx.ID_ANY )
+        self.open = bp.ButtonInfo( self.mediaControls, wx.ID_ANY, text = "Open" )
+        self.mediaControls.AddButton( self.open )
         self.play = bp.ButtonInfo( self.mediaControls, wx.ID_ANY, text = "PLAY" )
         self.mediaControls.AddButton( self.play )
         self.pause = bp.ButtonInfo( self.mediaControls, wx.ID_ANY, text = "PAUSE" )
@@ -45,6 +48,7 @@ class VideoContainer( wx.Panel ):
         self.mediaControls.Bind( wx.EVT_BUTTON, self.onPause, self.pause )
         self.mediaControls.Bind( wx.EVT_BUTTON, self.onForward, self.forward )
         self.mediaControls.Bind( wx.EVT_BUTTON, self.onBackward, self.backward )
+        self.mediaControls.Bind( wx.EVT_BUTTON, self.onOpen, self.open )
 
         # Configure video drawing panel
         self.videoDrawingPanel.SetDoubleBuffered( True )
@@ -63,12 +67,31 @@ class VideoContainer( wx.Panel ):
 
         self.mediaControls.DoLayout()
 
+        # Resize the entire frame taking into account all the children added
+        # Doesn't do anything, it's probably already called somewhere
+        self.Layout()
+
     # Private methods
     #  def onResize( self, evt ):
         #  clientWidth = self.GetClientSize()[0]
         #  self.trackbar.SetSize( clientWidth - 220, -1 )
 
         #  evt.Skip()
+
+    def onOpen( self, evt ):
+        with wx.FileDialog( self, "Open video source", style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST ) as fileDialog:
+
+            # The user cancelled the current operation
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+
+            # Load file chosen by the user
+            pathname = fileDialog.GetPath()
+            video = VideoSource( pathname )
+            self.setVideoSource( video )
+
+            # Refresh panel
+            self.updateFrame( 0 )
 
     def onPlay( self, evt ):
         self.videoPlay()

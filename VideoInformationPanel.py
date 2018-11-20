@@ -6,7 +6,7 @@ class VideoInformationPanel( wx.Panel ):
     def __init__( self, parent ):
 
         # Call parent constructor
-        wx.Panel.__init__( self, parent )
+        wx.Panel.__init__( self, parent, size = wx.Size( 300, 300 ) )
 
         # Define attributes
         self.sizer_v = wx.BoxSizer( wx.VERTICAL )
